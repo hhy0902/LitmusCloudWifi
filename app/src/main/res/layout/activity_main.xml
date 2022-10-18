@@ -6,14 +6,136 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/gateWayEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="게이트웨이 번호를 입력하세요."
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:lines="1"
+        app:layout_constraintEnd_toStartOf="@id/connectButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/connectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="연결"
+        app:layout_constraintEnd_toStartOf="@id/disConnectButton"
+        android:layout_marginEnd="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/gateWayEditText"
+        app:layout_constraintStart_toEndOf="@id/gateWayEditText"
+        app:layout_constraintTop_toTopOf="@id/gateWayEditText" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/disConnectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="연결 해제"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/gateWayEditText"
+        app:layout_constraintStart_toEndOf="@id/connectButton"
+        app:layout_constraintTop_toTopOf="@id/gateWayEditText" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/wifiIdEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="wifi id 값을 입력하세요."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gateWayEditText" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/wifiIdPasswordText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="wifi password 값을 입력하세요."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/wifiIdEditText" />
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/sendButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="addWifi"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/commitButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/commitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="commit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/resetButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="reset"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/commitButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/testButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hello"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sendButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
