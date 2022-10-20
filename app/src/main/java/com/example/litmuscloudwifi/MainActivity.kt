@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.example.litmuscloudwifi.databinding.ActivityMainBinding
-import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
 class MainActivity : AppCompatActivity() {
@@ -18,19 +17,22 @@ class MainActivity : AppCompatActivity() {
     var wifiPassword = ""
     var gatewayNumber = ""
 
+    var order_wifi = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0\", \"value\": {}}], \"id\": \"jn00m6o1\"}"
+    var order_wifi2 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"testapp3\"}], \"id\": \"61u0y3fr\"}"
+    var order_wifi3 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/password\", \"value\": \"testapp3\"}], \"id\": \"mocsxk38\"}"
+    var order_wifi4 = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network/wifi_sta/0\"}, \"id\": \"ym0yo3bk\"}"
 
-    var order2 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0\", \"value\": {}}], \"id\": \"jn00m6o1\"}"
-    var order3 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"testapp3\"}], \"id\": \"61u0y3fr\"}"
-    var order4 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/password\", \"value\": \"testapp3\"}], \"id\": \"mocsxk38\"}"
-    var order5 = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network/wifi_sta/0\"}, \"id\": \"ym0yo3bk\"}"
-
+    var order_commit = "{\"jsonrpc\": \"2.0\", \"method\": \"commit_env\", \"id\": \"lh7brbsi\"}"
     var order_reset = "{\"jsonrpc\": \"2.0\", \"method\": \"reset\", \"id\": \"iyc1etnx\"}"
+    var order_checkWifi = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"j6gm1ch4\"}"
+
+    val client = MqttClient("tcp://wnt.litmuscloud.com:1883",MqttClient.generateClientId(), null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val client = MqttClient("tcp://wnt.litmuscloud.com:1883",MqttClient.generateClientId(), null)
+
         //val client2 = MqttAndroidClient(this.applicationContext, "tcp://wnt.litmuscloud.com:1883", MqttClient.generateClientId())
         val option = MqttConnectOptions()
         option.password = "V1ZJDQHQ4QFUjUZ3yqY0HrhhFWDMv".toCharArray()
@@ -49,9 +51,11 @@ class MainActivity : AppCompatActivity() {
                     Log.d("asdf client.isConnected","${client.isConnected}")
                     if (client.isConnected) {
                         Toast.makeText(this, "${gatewayNumber} 게이트웨이에 연결되었습니다.", Toast.LENGTH_SHORT).show()
-                        Log.d("asdf id","${binding.wifiIdEditText.text.isNullOrEmpty()}")
-                        Log.d("asdf password","${binding.wifiIdPasswordText.text.isNullOrEmpty()}")
+                        Log.d("asdf id isNullOrEmpty","${binding.wifiIdEditText.text.isNullOrEmpty()}")
+                        Log.d("asdf password isNullOrEmpty","${binding.wifiIdPasswordText.text.isNullOrEmpty()}")
                         binding.connectButton.isClickable = false
+                        client.subscribe("${TOPIC}/${gatewayNumber}")
+
                     }
 
                 } catch (e : Exception) {
@@ -84,15 +88,15 @@ class MainActivity : AppCompatActivity() {
                     wifiId = binding.wifiIdEditText.text.toString()
                     wifiPassword = binding.wifiIdPasswordText.text.toString()
 
-                    order3 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"${wifiId}\"}], \"id\": \"61u0y3fr\"}"
-                    order4 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/password\", \"value\": \"${wifiPassword}\"}], \"id\": \"mocsxk38\"}"
+                    order_wifi2 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"${wifiId}\"}], \"id\": \"61u0y3fr\"}"
+                    order_wifi3 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/password\", \"value\": \"${wifiPassword}\"}], \"id\": \"mocsxk38\"}"
 
-                    client.publish("lcg100-request/${gatewayNumber}",MqttMessage("${order2}".toByteArray()))
-                    client.publish("lcg100-request/${gatewayNumber}",MqttMessage("${order3}".toByteArray()))
-                    client.publish("lcg100-request/${gatewayNumber}",MqttMessage("${order4}".toByteArray()))
-                    client.publish("lcg100-request/${gatewayNumber}",MqttMessage("${order5}".toByteArray()))
+                    //client.subscribe("${TOPIC}/${gatewayNumber}")
 
-                    client.subscribe("lcg100-request/${gatewayNumber}")
+                    client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_wifi}".toByteArray()))
+                    client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_wifi2}".toByteArray()))
+                    client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_wifi3}".toByteArray()))
+                    client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_wifi4}".toByteArray()))
 
                 } catch (e : Exception) {
                     e.printStackTrace()
@@ -106,8 +110,10 @@ class MainActivity : AppCompatActivity() {
         binding.resetButton.setOnClickListener {
             if(client.isConnected) {
                 gatewayNumber = binding.gateWayEditText.text.toString()
-                client.publish("lcg100-request/${gatewayNumber}",MqttMessage("${order_reset}".toByteArray()))
-                client.subscribe("lcg100-request/${gatewayNumber}")
+
+                //client.subscribe("${TOPIC}/${gatewayNumber}")
+                client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_reset}".toByteArray()))
+
             } else {
                 Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
@@ -118,15 +124,15 @@ class MainActivity : AppCompatActivity() {
                 gatewayNumber = binding.gateWayEditText.text.toString()
                 val message = binding.wifiIdEditText.text.toString()
 
-                client.publish("lcg100-request/${gatewayNumber}",MqttMessage("${message}".toByteArray()))
-                client.subscribe("lcg100-request/${gatewayNumber}")
+                //client.subscribe("${TOPIC}/${gatewayNumber}")
+                client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${message}".toByteArray()))
+
 
             } catch (e : Exception) {
                 e.printStackTrace()
                 Log.d("asdf error","error")
             }
         }
-
 
 
         client.setCallback(object : MqttCallback {
@@ -144,9 +150,49 @@ class MainActivity : AppCompatActivity() {
                 Log.d("asdf deliveryComplete","deliveryComplete")
             }
 
-
         })
 
+        testButton2()
+        commitButton()
+        checkWifiButton()
+    }
+
+    private fun checkWifiButton() {
+        binding.checkWifiButton.setOnClickListener {
+            Log.d("asdf checkWifiButton click","click")
+
+            gatewayNumber = binding.gateWayEditText.text.toString()
+
+            //client.subscribe("${TOPIC}/${gatewayNumber}")
+            client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_checkWifi}".toByteArray()))
+
+            val wifiInfo = client.getTopic("${TOPIC}/${gatewayNumber}")
+            Log.d("asdf wifiInfo","${wifiInfo}")
+
+        }
+    }
+
+    private fun commitButton() {
+        binding.commitButton.setOnClickListener {
+            Log.d("asdf commitButton click","click")
+
+            gatewayNumber = binding.gateWayEditText.text.toString()
+
+            //client.subscribe("${TOPIC}/${gatewayNumber}")
+            client.publish("${TOPIC}/${gatewayNumber}",MqttMessage("${order_commit}".toByteArray()))
+
+
+        }
+    }
+
+    private fun testButton2()  {
+        binding.testButton2.setOnClickListener {
+            Log.d("asdf testButton2 click","click")
+        }
+    }
+
+    companion object {
+        val TOPIC = "lcg100-request"
     }
 }
 
