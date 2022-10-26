@@ -11,10 +11,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="게이트웨이 번호를 입력하세요."
         android:ellipsize="end"
-        android:maxLines="1"
+        android:hint="게이트웨이 번호를 입력하세요."
         android:lines="1"
+        android:maxLines="1"
         app:layout_constraintEnd_toStartOf="@id/connectButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,10 +23,10 @@
         android:id="@+id/connectButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="연결"
-        app:layout_constraintEnd_toStartOf="@id/disConnectButton"
         android:layout_marginEnd="5dp"
+        android:text="연결"
         app:layout_constraintBottom_toBottomOf="@id/gateWayEditText"
+        app:layout_constraintEnd_toStartOf="@id/disConnectButton"
         app:layout_constraintStart_toEndOf="@id/gateWayEditText"
         app:layout_constraintTop_toTopOf="@id/gateWayEditText" />
 
@@ -35,8 +35,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="연결 해제"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/gateWayEditText"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/connectButton"
         app:layout_constraintTop_toTopOf="@id/gateWayEditText" />
 
@@ -65,30 +65,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="addWifi"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/testButton"
         app:layout_constraintEnd_toStartOf="@id/commitButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/wifiIdPasswordText"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/commitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="commit"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/testButton2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/wifiIdPasswordText"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="reset"
+        app:layout_constraintBottom_toTopOf="@id/checkWifiButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/commitButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/wifiIdPasswordText"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/testButton"
@@ -108,7 +114,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/checkWifiButton"
         app:layout_constraintStart_toEndOf="@id/testButton"
-        app:layout_constraintTop_toBottomOf="@id/addWifiButton" />
+        app:layout_constraintTop_toBottomOf="@id/commitButton" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/checkWifiButton"
@@ -118,7 +124,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/testButton2"
-        app:layout_constraintTop_toBottomOf="@id/addWifiButton" />
+        app:layout_constraintTop_toBottomOf="@id/resetButton" />
+
+    <TextView
+        android:id="@+id/wifiInfoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/wifi_info_background"
+        android:hint="wifi 정보가 여기 표시됩니다. "
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/checkWifiButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

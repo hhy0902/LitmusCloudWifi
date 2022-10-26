@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.litmuscloudwifi.databinding.ActivityMainBinding
 import org.eclipse.paho.client.mqttv3.*
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     var wifiPassword = ""
     var gatewayNumber = ""
     var random_id = ""
+    var checkWifiButton = false
 
     var order_wifi = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0\", \"value\": {}}], \"id\": \"jn00m6o1\"}"
     var order_wifi2 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"testapp3\"}], \"id\": \"61u0y3fr\"}"
@@ -43,9 +45,24 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
+
                 Log.d("asdf messageArrived","messageArrived")
                 Log.d("asdf messageArrived topic","${topic}")
                 Log.d("asdf messageArrived message","${message}")
+
+                if (checkWifiButton) {
+                    binding.wifiInfoTextView.text = "${message}"
+                }
+
+//                val jsonMessage = JSONObject(message.toString())
+//                jsonMessage.keys().forEach {
+//                    Log.d("asdf jsonMessage.keys()","${it}")
+//                }
+//
+//                Log.d("asdf jsonMessage","${jsonMessage}")
+
+
+
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
@@ -67,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun connectButton() {
         binding.connectButton.setOnClickListener {
-
+            checkWifiButton = false
             val option = MqttConnectOptions()
             option.password = "V1ZJDQHQ4QFUjUZ3yqY0HrhhFWDMv".toCharArray()
             option.userName = "mqttmasteruser"
@@ -100,6 +117,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun addWifiButton() {
         binding.addWifiButton.setOnClickListener {
+            checkWifiButton = false
             Log.d("asdf button click","click")
             randomNumber()
             if (client.isConnected) {
@@ -138,6 +156,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun disConnectButton() {
         binding.disConnectButton.setOnClickListener {
+            checkWifiButton = false
             if (client.isConnected) {
                 client.disconnect()
                 gatewayNumber = binding.gateWayEditText.text.toString()
@@ -157,6 +176,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkWifiButton() {
         binding.checkWifiButton.setOnClickListener {
             randomNumber()
+            checkWifiButton = true
             Log.d("asdf checkWifiButton click","click")
 
             gatewayNumber = binding.gateWayEditText.text.toString()
@@ -168,11 +188,15 @@ class MainActivity : AppCompatActivity() {
             val wifiInfo = client.getTopic("${TOPIC_REQUEST}/${gatewayNumber}")
             Log.d("asdf wifiInfo","${wifiInfo}")
 
+
         }
+
+
     }
 
     private fun commitButton() {
         binding.commitButton.setOnClickListener {
+            checkWifiButton = false
             randomNumber()
 
             if(client.isConnected) {
@@ -191,6 +215,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetButton() {
         binding.resetButton.setOnClickListener {
+            checkWifiButton = false
             randomNumber()
             if(client.isConnected) {
                 gatewayNumber = binding.gateWayEditText.text.toString()
@@ -253,6 +278,22 @@ class MainActivity : AppCompatActivity() {
         val TOPIC_REQUEST = "lcg100-request"
         val TOPIC_RESPONSE = "lcg100-response"
     }
+
+    override fun onResume() {
+        super.onResume()
+        checkWifiButton = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        checkWifiButton = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        checkWifiButton = false
+    }
+
 }
 
 
