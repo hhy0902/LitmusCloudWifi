@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.litmuscloudwifi.databinding.ActivityMainBinding
 import org.eclipse.paho.client.mqttv3.*
+import org.json.JSONArray
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
@@ -28,10 +29,14 @@ class MainActivity : AppCompatActivity() {
     var order_commit = "{\"jsonrpc\": \"2.0\", \"method\": \"commit_env\", \"id\": \"lh7brbsi\"}"
     var order_reset = "{\"jsonrpc\": \"2.0\", \"method\": \"reset\", \"id\": \"iyc1etnx\"}"
     var order_checkWifi = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"j6gm1ch4\"}"
+    var order_factory_reset = "{\"jsonrpc\": \"2.0\", \"method\": \"factory_reset\", \"id\": \"nofqvwx3\"}"
 
     var order_hello = "{\"jsonrpc\": \"2.0\", \"method\": \"hello\", \"id\": \"7qmmla2f\"}"
 
     val client = MqttClient("tcp://wnt.litmuscloud.com:1883",MqttClient.generateClientId(), null)
+    var messageKeyList = mutableListOf<String>()
+    var wifiMessageKeyList = mutableListOf<String>()
+    var wifiBuffer = StringBuffer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +47,10 @@ class MainActivity : AppCompatActivity() {
         client.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
                 Log.d("asdf connectionLost","connectionLost")
+                binding.connectButton.isClickable = true
+                binding.gateWayEditText.text = null
+                binding.wifiInfoTextView.text = null
+
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
@@ -52,16 +61,49 @@ class MainActivity : AppCompatActivity() {
 
                 if (checkWifiButton) {
                     binding.wifiInfoTextView.text = "${message}"
+
+                    val jsonMessage = JSONObject(message.toString())
+                    jsonMessage.keys().forEach {
+                        Log.d("asdf jsonMessage.keys()","${it}")
+                        messageKeyList.add(it)
+                    }
+
+                    Log.d("asdf jsonMessage","${jsonMessage}")
+                    Log.d("asdf messageKeyList","${messageKeyList}")
+                    Log.d("asdf messageKeyList.get(1)","${messageKeyList.get(1)}")
+
+                    if (messageKeyList.get(1) == "result") {
+                        val wifiMessage = JSONObject(jsonMessage.toString()).get(messageKeyList.get(1))
+                        Log.d("asdf wifiMessage","${wifiMessage}")
+                        val wifiMessageKeys = JSONObject(wifiMessage.toString()).keys().forEach {
+                            wifiMessageKeyList.add(it)
+                        }
+                        Log.d("asdf wifiMessageKeyList","${wifiMessageKeyList}")
+                        Log.d("asdf wifiMessageKeyList.get(1)","${wifiMessageKeyList.get(1)}")
+                        if (wifiMessageKeyList.get(1) == "wifi_sta") {
+                            val wifiInfo = JSONObject(wifiMessage.toString()).get(wifiMessageKeyList.get(1))
+                            Log.d("asdf wifiInfo","${wifiInfo}")
+
+                            val wifiInfoArray = JSONArray(wifiInfo.toString())
+
+                            val wifiInfoArraySize = wifiInfoArray.length()
+                            Log.d("asdf wifiInfoArraySize","${wifiInfoArraySize}")
+
+                            for(i in 0 until wifiInfoArraySize) {
+                                Log.d("asdf wifiInfoArray ${i}","${wifiInfoArray.get(i)}")
+                                wifiBuffer.append(wifiInfoArray.get(i).toString() +"\n")
+                            }
+                            Log.d("asdf wifiBuffer","${wifiBuffer}")
+                            binding.wifiInfoTextView.text = wifiBuffer
+
+                        }
+                    }
+
+                    wifiBuffer.delete(0, wifiBuffer.length)
+                    messageKeyList.clear()
+                    wifiMessageKeyList.clear()
+
                 }
-
-//                val jsonMessage = JSONObject(message.toString())
-//                jsonMessage.keys().forEach {
-//                    Log.d("asdf jsonMessage.keys()","${it}")
-//                }
-//
-//                Log.d("asdf jsonMessage","${jsonMessage}")
-
-
 
             }
 
@@ -77,8 +119,8 @@ class MainActivity : AppCompatActivity() {
         commitButton()
         resetButton()
         checkWifiButton()
-        testButton()
-        testButton2()
+        factoryResetButton()
+        clearButton()
     }
 
 
@@ -159,13 +201,7 @@ class MainActivity : AppCompatActivity() {
             checkWifiButton = false
             if (client.isConnected) {
                 client.disconnect()
-                gatewayNumber = binding.gateWayEditText.text.toString()
-                Toast.makeText(this, "${gatewayNumber} 게이트웨이와 연결을 해제했습니다.", Toast.LENGTH_SHORT).show()
-                binding.gateWayEditText.text = null
-                binding.wifiIdEditText.text = null
-                binding.wifiIdPasswordText.text = null
-                binding.connectButton.isClickable = true
-                Log.d("asdf client.isConnected disConnectButton","${client.isConnected}")
+                disconnect()
             } else {
                 Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
@@ -179,18 +215,20 @@ class MainActivity : AppCompatActivity() {
             checkWifiButton = true
             Log.d("asdf checkWifiButton click","click")
 
-            gatewayNumber = binding.gateWayEditText.text.toString()
-            order_checkWifi = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"${random_id}\"}"
+            if(client.isConnected) {
+                gatewayNumber = binding.gateWayEditText.text.toString()
+                order_checkWifi = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"${random_id}\"}"
 
-            //client.subscribe("${TOPIC}/${gatewayNumber}")
-            client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_checkWifi}".toByteArray()))
+                //client.subscribe("${TOPIC}/${gatewayNumber}")
+                client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_checkWifi}".toByteArray()))
 
-            val wifiInfo = client.getTopic("${TOPIC_REQUEST}/${gatewayNumber}")
-            Log.d("asdf wifiInfo","${wifiInfo}")
-
+                val wifiInfo = client.getTopic("${TOPIC_REQUEST}/${gatewayNumber}")
+                Log.d("asdf wifiInfo","${wifiInfo}")
+            } else {
+                Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
 
         }
-
 
     }
 
@@ -230,16 +268,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun testButton() {
-        binding.testButton.setOnClickListener {
+    private fun factoryResetButton() {
+        binding.factoryResetButton.setOnClickListener {
             randomNumber()
+            checkWifiButton = false
             if(client.isConnected) {
                 try {
                     gatewayNumber = binding.gateWayEditText.text.toString()
-                    val message = binding.wifiIdEditText.text.toString()
 
+                    order_factory_reset = "{\"jsonrpc\": \"2.0\", \"method\": \"factory_reset\", \"id\": \"${random_id}\"}"
                     //client.subscribe("${TOPIC}/${gatewayNumber}")
-                    client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${message}".toByteArray()))
+                    client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_factory_reset}".toByteArray()))
 
                 } catch (e : Exception) {
                     e.printStackTrace()
@@ -251,11 +290,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun testButton2()  {
-        binding.testButton2.setOnClickListener {
-            Log.d("asdf testButton2 click","click")
-
-            randomNumber()
+    private fun clearButton()  {
+        binding.clearButton.setOnClickListener {
+            Log.d("asdf clearButton click","click")
+            binding.wifiInfoTextView.text = null
 
         }
     }
@@ -272,6 +310,15 @@ class MainActivity : AppCompatActivity() {
 
         random_id = "${random_eng1}${random_eng2}${random_eng3}${random_eng4}${random_int1}${random_int2}${random_int3}${random_int4}"
         Log.d("asdf random_id","${random_id}")
+    }
+
+    private fun disconnect() {
+        gatewayNumber = binding.gateWayEditText.text.toString()
+        Toast.makeText(this, "${gatewayNumber} 게이트웨이와 연결을 해제했습니다.", Toast.LENGTH_SHORT).show()
+        binding.connectButton.isClickable = true
+        binding.gateWayEditText.text = null
+        binding.wifiInfoTextView.text = null
+        Log.d("asdf client.isConnected disConnectButton","${client.isConnected}")
     }
 
     companion object {
