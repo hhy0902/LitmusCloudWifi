@@ -133,6 +133,8 @@
         android:background="@drawable/wifi_info_background"
         android:hint="wifi 정보가 여기 표시됩니다. "
         android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:textSize="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

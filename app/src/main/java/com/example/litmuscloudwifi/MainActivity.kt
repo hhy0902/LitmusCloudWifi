@@ -334,6 +334,8 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         checkWifiButton = false
+        client.disconnect()
+        disconnect()
     }
 
     override fun onPause() {
