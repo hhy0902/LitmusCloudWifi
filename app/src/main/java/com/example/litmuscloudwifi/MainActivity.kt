@@ -1,9 +1,11 @@
 package com.example.litmuscloudwifi
 
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.example.litmuscloudwifi.databinding.ActivityMainBinding
 import org.eclipse.paho.client.mqttv3.*
 import org.json.JSONArray
@@ -31,9 +33,9 @@ class MainActivity : AppCompatActivity() {
     var order_checkWifi = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"j6gm1ch4\"}"
     var order_factory_reset = "{\"jsonrpc\": \"2.0\", \"method\": \"factory_reset\", \"id\": \"nofqvwx3\"}"
 
-    var order_hello = "{\"jsonrpc\": \"2.0\", \"method\": \"hello\", \"id\": \"7qmmla2f\"}"
+    var order_gateWayInfo = "{\"jsonrpc\": \"2.0\", \"method\": \"hello\", \"id\": \"7qmmla2f\"}"
 
-    val client = MqttClient("tcp://wnt.litmuscloud.com:1883",MqttClient.generateClientId(), null)
+    val client = MqttClient(MQTT_SERVER_URL,MqttClient.generateClientId(), null)
     var messageKeyList = mutableListOf<String>()
     var wifiMessageKeyList = mutableListOf<String>()
     var wifiBuffer = StringBuffer()
@@ -50,11 +52,9 @@ class MainActivity : AppCompatActivity() {
                 binding.connectButton.isClickable = true
                 binding.gateWayEditText.text = null
                 binding.wifiInfoTextView.text = null
-
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
-
                 Log.d("asdf messageArrived","messageArrived")
                 Log.d("asdf messageArrived topic","${topic}")
                 Log.d("asdf messageArrived message","${message}")
@@ -85,7 +85,6 @@ class MainActivity : AppCompatActivity() {
                             Log.d("asdf wifiInfo","${wifiInfo}")
 
                             val wifiInfoArray = JSONArray(wifiInfo.toString())
-
                             val wifiInfoArraySize = wifiInfoArray.length()
                             Log.d("asdf wifiInfoArraySize","${wifiInfoArraySize}")
 
@@ -102,9 +101,7 @@ class MainActivity : AppCompatActivity() {
                     wifiBuffer.delete(0, wifiBuffer.length)
                     messageKeyList.clear()
                     wifiMessageKeyList.clear()
-
                 }
-
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
@@ -118,18 +115,18 @@ class MainActivity : AppCompatActivity() {
         disConnectButton()
         commitButton()
         resetButton()
+        infoButton()
         checkWifiButton()
         factoryResetButton()
         clearButton()
     }
 
-
     private fun connectButton() {
         binding.connectButton.setOnClickListener {
             checkWifiButton = false
             val option = MqttConnectOptions()
-            option.password = "V1ZJDQHQ4QFUjUZ3yqY0HrhhFWDMv".toCharArray()
-            option.userName = "mqttmasteruser"
+            option.password = MQTT_PASSWORD.toCharArray()
+            option.userName = MQTT_USERNAME
             option.willMessage
 
             if(binding.gateWayEditText.text?.length == 0) {
@@ -166,21 +163,36 @@ class MainActivity : AppCompatActivity() {
 
                 if (binding.wifiIdEditText.text.isNullOrEmpty().not()) {
                     try {
+
                         gatewayNumber = binding.gateWayEditText.text.toString()
                         wifiId = binding.wifiIdEditText.text.toString()
                         wifiPassword = binding.wifiIdPasswordText.text.toString()
 
-                        order_wifi = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0\", \"value\": {}}], \"id\": \"${random_id}\"}"
-                        order_wifi2 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"${wifiId}\"}], \"id\": \"${random_id}\"}"
-                        order_wifi3 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/password\", \"value\": \"${wifiPassword}\"}], \"id\": \"${random_id}\"}"
-                        order_wifi4 = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network/wifi_sta/0\"}, \"id\": \"${random_id}\"}"
+                        val builder = AlertDialog.Builder(this)
+                        builder.setMessage("WIFI 정보를 입력하시겠습니까?")
+                            .setTitle("ID : ${wifiId} \nPASSWORD : ${wifiPassword}")
+                            .setPositiveButton("예", DialogInterface.OnClickListener { dialog, which ->
+                                order_wifi = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0\", \"value\": {}}], \"id\": \"${random_id}\"}"
+                                order_wifi2 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/ssid\", \"value\": \"${wifiId}\"}], \"id\": \"${random_id}\"}"
+                                order_wifi3 = "{\"jsonrpc\": \"2.0\", \"method\": \"patch_env\", \"params\": [{\"op\": \"add\", \"path\": \"/network/wifi_sta/0/password\", \"value\": \"${wifiPassword}\"}], \"id\": \"${random_id}\"}"
+                                order_wifi4 = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network/wifi_sta/0\"}, \"id\": \"${random_id}\"}"
 
-                        //client.subscribe("${TOPIC}/${gatewayNumber}")
+                                //client.subscribe("${TOPIC}/${gatewayNumber}")
 
-                        client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi}".toByteArray()))
-                        client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi2}".toByteArray()))
-                        client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi3}".toByteArray()))
-                        client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi4}".toByteArray()))
+                                client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi}".toByteArray()))
+                                client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi2}".toByteArray()))
+                                client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi3}".toByteArray()))
+                                client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi4}".toByteArray()))
+
+                                Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
+
+                            })
+                            .setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
+                                Toast.makeText(this, "취소했습니다.", Toast.LENGTH_SHORT).show()
+                            })
+                        builder.create()
+                        builder.show()
+
 
                     } catch (e : Exception) {
                         e.printStackTrace()
@@ -208,6 +220,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun infoButton() {
+        binding.infoButton.setOnClickListener {
+            randomNumber()
+            checkWifiButton = true
+            if (client.isConnected) {
+                gatewayNumber = binding.gateWayEditText.text.toString()
+                order_gateWayInfo = "{\"jsonrpc\": \"2.0\", \"method\": \"hello\", \"id\": \"${random_id}\"}"
+
+                client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_gateWayInfo}".toByteArray()))
+
+            } else {
+                Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     private fun checkWifiButton() {
         binding.checkWifiButton.setOnClickListener {
@@ -217,7 +244,7 @@ class MainActivity : AppCompatActivity() {
 
             if(client.isConnected) {
                 gatewayNumber = binding.gateWayEditText.text.toString()
-                order_checkWifi = "{\"jsonrpc\": \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"${random_id}\"}"
+                order_checkWifi = "{\"jsonrpc\" : \"2.0\", \"method\": \"get_env\", \"params\": {\"path\": \"/network\"}, \"id\": \"${random_id}\"}"
 
                 //client.subscribe("${TOPIC}/${gatewayNumber}")
                 client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_checkWifi}".toByteArray()))
@@ -227,9 +254,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
-
         }
-
     }
 
     private fun commitButton() {
@@ -275,10 +300,22 @@ class MainActivity : AppCompatActivity() {
             if(client.isConnected) {
                 try {
                     gatewayNumber = binding.gateWayEditText.text.toString()
-
                     order_factory_reset = "{\"jsonrpc\": \"2.0\", \"method\": \"factory_reset\", \"id\": \"${random_id}\"}"
-                    //client.subscribe("${TOPIC}/${gatewayNumber}")
-                    client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_factory_reset}".toByteArray()))
+
+                    val builder = AlertDialog.Builder(this)
+                    builder.setMessage("정말 초기화 하시겠습니까?")
+                        .setTitle("모든 WIFI 정보가 삭제됩니다.")
+                        .setPositiveButton("예", DialogInterface.OnClickListener { dialog, which ->
+                            //client.subscribe("${TOPIC}/${gatewayNumber}")
+                            client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_factory_reset}".toByteArray()))
+
+                            Toast.makeText(this, "잠시만 기다려주세요.", Toast.LENGTH_SHORT).show()
+                        })
+                        .setNegativeButton("아니오",DialogInterface.OnClickListener { dialog, which ->
+                            Toast.makeText(this, "취소했습니다.", Toast.LENGTH_SHORT).show()
+                        })
+                    builder.create()
+                    builder.show()
 
                 } catch (e : Exception) {
                     e.printStackTrace()
@@ -292,9 +329,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun clearButton()  {
         binding.clearButton.setOnClickListener {
-            Log.d("asdf clearButton click","click")
+            Log.d("asdf infoButton click","click")
             binding.wifiInfoTextView.text = null
-
         }
     }
 
@@ -324,6 +360,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val TOPIC_REQUEST = "lcg100-request"
         val TOPIC_RESPONSE = "lcg100-response"
+        val MQTT_PASSWORD = "V1ZJDQHQ4QFUjUZ3yqY0HrhhFWDMv"
+        val MQTT_USERNAME = "mqttmasteruser"
+        val MQTT_SERVER_URL = "tcp://wnt.litmuscloud.com:1883"
     }
 
     override fun onResume() {

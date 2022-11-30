@@ -77,7 +77,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="commit"
-        app:layout_constraintBottom_toTopOf="@id/clearButton"
+        app:layout_constraintBottom_toTopOf="@id/infoButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/wifiIdPasswordText"
@@ -102,15 +102,15 @@
         android:layout_height="wrap_content"
         android:text="공장초기화"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/clearButton"
+        app:layout_constraintEnd_toStartOf="@id/infoButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addWifiButton" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/clearButton"
+        android:id="@+id/infoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="지우기"
+        android:text="info"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/checkWifiButton"
         app:layout_constraintStart_toEndOf="@id/factoryResetButton"
@@ -123,7 +123,7 @@
         android:text="checkWifi"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/clearButton"
+        app:layout_constraintStart_toEndOf="@id/infoButton"
         app:layout_constraintTop_toBottomOf="@id/resetButton" />
 
     <TextView
@@ -139,6 +139,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/checkWifiButton" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/clearButton"
+        android:text="지우기"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
