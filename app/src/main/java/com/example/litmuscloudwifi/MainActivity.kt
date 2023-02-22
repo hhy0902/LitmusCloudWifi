@@ -185,6 +185,7 @@ class MainActivity : AppCompatActivity() {
                                 client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_wifi4}".toByteArray()))
 
                                 Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this,"commit 버튼을 눌러주세요.", Toast.LENGTH_SHORT).show()
 
                             })
                             .setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
@@ -270,6 +271,9 @@ class MainActivity : AppCompatActivity() {
 
                 //client.subscribe("${TOPIC}/${gatewayNumber}")
                 client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_commit}".toByteArray()))
+
+                Toast.makeText(this,"설정되었습니다. reset 버튼을 눌러주세요.", Toast.LENGTH_SHORT).show()
+
             } else {
                 Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
@@ -286,6 +290,8 @@ class MainActivity : AppCompatActivity() {
 
                 //client.subscribe("${TOPIC}/${gatewayNumber}")
                 client.publish("${TOPIC_REQUEST}/${gatewayNumber}",MqttMessage("${order_reset}".toByteArray()))
+
+                Toast.makeText(this,"재부팅 중 입니다. 잠시만 기다려주세요.", Toast.LENGTH_SHORT).show()
 
             } else {
                 Toast.makeText(this, "게이트웨이 연결이 필요합니다.", Toast.LENGTH_SHORT).show()
